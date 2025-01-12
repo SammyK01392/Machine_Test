@@ -24,6 +24,8 @@ CategoryName
 Server-side implementation to fetch records as per the current page and page size.
 Efficient database queries for performance optimization.
 
+
+![Screenshot (20)](https://github.com/user-attachments/assets/26a0e9ab-7fbb-4f13-8aca-c430e277131f)
  ###   PROJECT STRUCTURE 
 
  
