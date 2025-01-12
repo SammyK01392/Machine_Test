@@ -1,0 +1,54 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Product List";
+}
+
+<h2>Product List</h2>
+
+<a asp-action="Create" class="btn btn-success">Create</a>
+<hr />
+<table class="table">
+    <thead class="table-primary">
+        <tr>
+            <th>ProductId</th>
+            <th>ProductName</th>
+            <th>CategoryId</th>
+            <th>CategoryName</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.ProductId</td>
+                <td>@product.ProductName</td>
+                <td>@product.CategoryId</td>
+                <td>@product.CategoryName</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.ProductId" class="btn btn-primary btn-sm">Edit</a>
+                    <a asp-action="Details" asp-route-id="@product.ProductId" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Delete" asp-route-id="@product.ProductId" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this category?');">Delete</a>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="pagination">
+    <a href="@Url.Action("Index", new { pageNumber = 1, pageSize = ViewBag.PageSize })" 
+       class="btn btn-light @(ViewBag.PageNumber == 1 ? "disabled" : "")">First</a>
+
+    <a href="@Url.Action("Index", new { pageNumber = ViewBag.PageNumber - 1, pageSize = ViewBag.PageSize })" 
+       class="btn btn-light @(ViewBag.PageNumber == 1 ? "disabled" : "")">Previous</a>
+
+    <span>Page @ViewBag.PageNumber of @ViewBag.TotalPages</span>
+
+    <a href="@Url.Action("Index", new { pageNumber = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })" 
+       class="btn btn-light @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">Next</a>
+
+    <a href="@Url.Action("Index", new { pageNumber = ViewBag.TotalPages, pageSize = ViewBag.PageSize })" 
+       class="btn btn-light @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">Last</a>
+</div>
