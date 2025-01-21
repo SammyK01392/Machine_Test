@@ -37,18 +37,13 @@
     </tbody>
 </table>
 
-<div class="pagination">
-    <a href="@Url.Action("Index", new { pageNumber = 1, pageSize = ViewBag.PageSize })" 
-       class="btn btn-light @(ViewBag.PageNumber == 1 ? "disabled" : "")">First</a>
-
-    <a href="@Url.Action("Index", new { pageNumber = ViewBag.PageNumber - 1, pageSize = ViewBag.PageSize })" 
-       class="btn btn-light @(ViewBag.PageNumber == 1 ? "disabled" : "")">Previous</a>
-
-    <span>Page @ViewBag.PageNumber of @ViewBag.TotalPages</span>
-
-    <a href="@Url.Action("Index", new { pageNumber = ViewBag.PageNumber + 1, pageSize = ViewBag.PageSize })" 
-       class="btn btn-light @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">Next</a>
-
-    <a href="@Url.Action("Index", new { pageNumber = ViewBag.TotalPages, pageSize = ViewBag.PageSize })" 
-       class="btn btn-light @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">Last</a>
-</div>
+<nav>
+    <ul class="pagination">
+        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                <a class="page-link" href="?pageNumber=@i&pageSize=@ViewBag.PageSize">@i</a>
+            </li>
+        }
+    </ul>
+</nav>
