@@ -14,35 +14,24 @@ namespace Machine_Test.Controllers
             this.context = context;
         }
 
+        // Index with Pagination
         public async Task<IActionResult> Index(int pageNumber = 1, int pageSize = 10)
         {
-            
             if (pageNumber < 1) pageNumber = 1;
             if (pageSize < 1) pageSize = 10;
 
             var totalCount = await context.Products.CountAsync();
-
-            
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 
-         
-            if (pageNumber > totalPages) pageNumber = totalPages;
+            if (pageNumber > totalPages && totalPages > 0) pageNumber = totalPages;
 
-     
             var products = await context.Products
+                .Include(p => p.Category)
                 .OrderBy(p => p.ProductId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(p => new
-                {
-                    p.ProductId,
-                    p.ProductName,
-                    p.CategoryId,
-                    p.Category.CategoryName
-                })
                 .ToListAsync();
 
-            
             ViewBag.PageNumber = pageNumber;
             ViewBag.PageSize = pageSize;
             ViewBag.TotalCount = totalCount;
@@ -51,18 +40,23 @@ namespace Machine_Test.Controllers
             return View(products);
         }
 
-
-        public IActionResult Details(int id)
+        // Details
+        public async Task<IActionResult> Details(int id)
         {
-            var product = context.Products.FirstOrDefault(p => p.ProductId == id);
-                if(product == null)
+            var product = await context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
             {
                 return NotFound();
             }
-            ViewBag.Categories = new SelectList( context.Categories.ToList(), "CategoryId", "CategoryName");
+
+            ViewBag.Categories = new SelectList(await context.Categories.ToListAsync(), "CategoryId", "CategoryName");
             return View(product);
         }
 
+        // Create (GET)
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -70,10 +64,16 @@ namespace Machine_Test.Controllers
             return View();
         }
 
+        // Create (POST)
         [HttpPost]
         public async Task<IActionResult> Create(Product product)
         {
-            if (!ModelState.IsValid)
+            if (context.Products.Any(p => p.ProductName == product.ProductName))
+            {
+                ModelState.AddModelError("ProductName", "A product with this name already exists.");
+            }
+
+            if (ModelState.IsValid)
             {
                 context.Products.Add(product);
                 await context.SaveChangesAsync();
@@ -84,45 +84,40 @@ namespace Machine_Test.Controllers
             return View(product);
         }
 
-        public IActionResult Edit(int id)
+        // Edit (GET)
+        public async Task<IActionResult> Edit(int id)
         {
-            var product = context.Products.FirstOrDefault(x => x.ProductId == id);
+            var product = await context.Products.FindAsync(id);
             if (product == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Categories = new SelectList(context.Categories.ToList(), "CategoryId", "CategoryName");
-
+            ViewBag.Categories = new SelectList(await context.Categories.ToListAsync(), "CategoryId", "CategoryName");
             return View(product);
         }
 
+        // Edit (POST)
         [HttpPost]
-        public IActionResult Edit(Product product)
+        public async Task<IActionResult> Edit(Product product)
         {
-            if (!ModelState.IsValid)
+            if (context.Products.Any(p => p.ProductName == product.ProductName && p.ProductId != product.ProductId))
             {
-                context.Products.Attach(product);
-                context.Entry(product).State = EntityState.Modified;
+                ModelState.AddModelError("ProductName", "A product with this name already exists.");
+            }
 
-                context.SaveChanges();
+            if (ModelState.IsValid)
+            {
+                context.Products.Update(product);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-          
-            ViewBag.Categories = new SelectList(context.Categories.ToList(), "CategoryId", "CategoryName");
-
+            ViewBag.Categories = new SelectList(await context.Categories.ToListAsync(), "CategoryId", "CategoryName");
             return View(product);
         }
 
-        private bool ProductExists(int id)
-        {
-            return context.Products.Any(e => e.ProductId == id);
-        }
-
-
-
-
+        // Delete
         public async Task<IActionResult> Delete(int id)
         {
             var product = await context.Products.FindAsync(id);
@@ -134,6 +129,12 @@ namespace Machine_Test.Controllers
             context.Products.Remove(product);
             await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        // Check if a product exists
+        private bool ProductExists(int id)
+        {
+            return context.Products.Any(e => e.ProductId == id);
         }
     }
 }
