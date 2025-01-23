@@ -28,7 +28,6 @@ Efficient database queries for performance optimization.
 ![Screenshot (20)](https://github.com/user-attachments/assets/26a0e9ab-7fbb-4f13-8aca-c430e277131f)
 
 
-![Screenshot (19)](https://github.com/user-attachments/assets/e159bbc7-99ac-4272-832f-039c0fcd594e)
 
 
 
